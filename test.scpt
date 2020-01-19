@@ -1,12 +1,17 @@
+global tmpDir
+-- set tmpDir to path to temporary items from user domain as text
+-- @todo remove fixed temporary path but unfortunately the temporary items from user domain variable is obviously too long for the property list file to work
+set tmpDir to "Macintosh HD:Users:cma:_temp:"
+
+-- Export all accounts from MoneyMoney application into temporary folder.
+-- The temporary folder is necessary because the plist result of the "export accounts" command cannot be processed easily
+-- with AppleScript otherwise.
 on ExportAccounts()
 	tell application "MoneyMoney"
 		set accounts to export accounts
 	end tell
 
 	-- @todo check if there is any other way than to temporary safe the plist file
-	set tmpDir to path to temporary items from user domain as text
-	-- @todo remove fixed temporary path but unfortunately the temporary items from user domain variable is obviously too long for the property list file to work
-	set tmpDir to "Macintosh HD:Users:cma:_temp:"
 	set UUID to do shell script "uuidgen"
 	set accountsPropertyListFile to (tmpDir & UUID & ".plist")
 	set accountsPropertyListFilePosix to POSIX path of accountsPropertyListFile
@@ -20,64 +25,84 @@ on ExportAccounts()
 	return accountsPropertyListFilePosix
 end ExportAccounts
 
-on SumBankBalances(accountsPropertyListFile)
+on DeleteFile(fileName)
+	log "INFO: removing temporary file " & fileName
+
+	-- this statement returns an error if parameter fileName is not a real file
+	-- this way we prohibit removing a whole directory
+	do shell script "test -f " & fileName as POSIX file
+
+	tell application "System Events" to delete alias fileName
+end DeleteFile
+
+-- Increase the balance value of the given bank in the balancePerBankList list
+on IncreaseBankBalance(bankIdentifier, balance, balancePerBankList)
+	log "INFO: Increase bank balance of " & bankIdentifier & " by " & balance
+
+	repeat with a from 1 to the count of balancePerBankList
+		if bankIdentifier of item a of balancePerBankList is bankIdentifier then
+			set newBalance to (balance of item a of balancePerBankList) + balance
+			log "DEBUG: Found exising balance. Set new balance to " & newBalance
+			set item a of balancePerBankList to {bankIdentifier:bankIdentifier, balance:newBalance}
+
+			return balancePerBankList
+		end if
+	end repeat
+
+	set the end of balancePerBankList to {bankIdentifier:bankIdentifier, balance:balance}
+	return balancePerBankList
+end IncreaseBankBalance
+
+-- Sum up all bank balances in the given plist file from MoneyMoney
+on SumBankBalancesFromPlist(accountsPropertyListFile)
+	-- balancePerBankList is an object like {{bankIdentifier: "DKB", balance: 200, bankIdentifier: "Deutsche Bank", balance: 99, ..}
+	set balancePerBankList to {}
+
 	tell application "System Events"
-		-- @todo remove fixed file
 		tell property list file accountsPropertyListFile
-			set resultFiles to {}
-
 			repeat with i from 1 to number of property list items
-				set bankCode to value of property list item "accountNumber" of property list item i
+				set bankIdentifier to ""
+				set accountName to ""
 
-				if bankCode is not "" then
-					tell application "MoneyMoney"
-						try
-							-- @todo last transaction sufficent?
-							set resultFile to export transactions from account bankCode from date "Donnerstag, 1. Januar 1970 um 00:00:00" as "ryczznfvqkgdqnnu"
-							set end of resultFiles to resultFile & " "
-							log "Export for " & bankCode & " written to " & resultFile
-						on error errStr number errorNumber
-							log "ERROR: " & errStr & " (" & errorNumber & ")"
-						end try
-
-					end tell
-				else
-					log "Bank code missing for " & value of property list item "name" of property list item i & "!"
-				end if
+				try
+					set accountName to value of property list item "name" of property list item i
+					set bankIdentifier to value of property list item "bankIdentifier" of property list item "attributes" of property list item i
+					set balances to value of property list item "balance" of property list item i
+					repeat with balance in balances
+						-- @todo make addition work also for different currencies, at the moment we assume all is the same currency
+						my IncreaseBankBalance(bankIdentifier, get first item of balance, balancePerBankList)
+					end repeat
+				on error errStr number errorNumber
+					log "WARNING: " & errStr & ". Probably MoneyMoney Attribute 'bankIdentifier' not set for account " & accountName & ". Skipping.."
+				end try
 			end repeat
 		end tell
 	end tell
 
-	if resultFiles is {} then
-		error "Temporary property list file " & accountsPropertyListFile & " could not be read or is empty."
+	if balancePerBankList is {} then
+		error "Temporary property list file " & accountsPropertyListFile & " could not be read or no MoneyMoney accounts with attribute 'bankIdentifier' exists."
 	end if
-
-	-- @todo make delimiter configurable
-	set result to do shell script "LC_ALL=de_DE.UTF-8 awk 'BEGIN { FS = OFS = \";\" } { balance[$1] += $2; bank[$1] = $1; } END { for (i in bank) { printf \"%'\"'\"'.2f;%s\\n\", balance[i], bank[i]; } }' " & resultFiles
 
 	-- @todo clean temporary file(s)
 
-	return paragraphs of result
-end SumBankBalances
+	return balancePerBankList
+end SumBankBalancesFromPlist
 
+-- Open Microsoft Excel application, insert bank sums and format and sort accordingly
 on OpenExcelWithData(bankBalances)
 	tell application "Microsoft Excel"
 		activate
 		make new workbook
 		set x to 1
 
-		set oldDelims to AppleScript's text item delimiters
-		set AppleScript's text item delimiters to ";"
-		repeat with singleLine in bankBalances
-			set balance to text item 1 of singleLine
-			set bank to text item 2 of singleLine
+		repeat with balanceData in bankBalances
+			set balance to balance of balanceData
+			set bank to bankIdentifier of balanceData
 
 			set value of cell x of column 1 to balance
 			set value of cell x of column 2 to bank
 			set x to (x + 1)
 		end repeat
-
-		set AppleScript's text item delimiters to oldDelims
 
 		set number format of range "$A1:$A100" to "#,##0.00 €"
 		sort range "A1:B10" key1 range "A1" order1 sort descending
@@ -85,6 +110,8 @@ on OpenExcelWithData(bankBalances)
 end OpenExcelWithData
 
 set accountsPropertyListFile to ExportAccounts()
-set bankBalances to SumBankBalances(accountsPropertyListFile)
+set bankBalances to SumBankBalancesFromPlist(accountsPropertyListFile)
 
 OpenExcelWithData(bankBalances)
+
+DeleteFile(accountsPropertyListFile)
