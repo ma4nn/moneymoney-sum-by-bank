@@ -42,7 +42,7 @@ on IncreaseBankBalance(bankIdentifier, balance, balancePerBankList)
 	repeat with a from 1 to the count of balancePerBankList
 		if bankIdentifier of item a of balancePerBankList is bankIdentifier then
 			set newBalance to (balance of item a of balancePerBankList) + balance
-			log "DEBUG: Found exising balance. Set new balance to " & newBalance
+			log "DEBUG: Found existing balance. Set new balance to " & newBalance
 			set item a of balancePerBankList to {bankIdentifier:bankIdentifier, balance:newBalance}
 
 			return balancePerBankList
