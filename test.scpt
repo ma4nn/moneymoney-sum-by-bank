@@ -1,7 +1,6 @@
 global tmpDir
--- set tmpDir to path to temporary items from user domain as text
--- @todo remove fixed temporary path but unfortunately the temporary items from user domain variable is obviously too long for the property list file to work
-set tmpDir to "Macintosh HD:Users:cma:_temp:"
+-- Note: we do not use "path to temporary items from user domain" because - despite the call - this is not in the user space!
+set tmpDir to (path to library folder from user domain as text) & "Caches:"
 
 -- Export all accounts from MoneyMoney application into temporary folder.
 -- The temporary folder is necessary because the plist result of the "export accounts" command cannot be processed easily
@@ -55,7 +54,7 @@ end IncreaseBankBalance
 
 -- Sum up all bank balances in the given plist file from MoneyMoney
 on SumBankBalancesFromPlist(accountsPropertyListFile)
-	-- balancePerBankList is an object like {{bankIdentifier: "DKB", balance: 200, bankIdentifier: "Deutsche Bank", balance: 99, ..}
+	-- balancePerBankList is an object like {{bankIdentifier: "DKB", balance: 200, bankIdentifier: "Commerzbank", balance: 99, ..}
 	set balancePerBankList to {}
 
 	tell application "System Events"
@@ -82,8 +81,6 @@ on SumBankBalancesFromPlist(accountsPropertyListFile)
 	if balancePerBankList is {} then
 		error "Temporary property list file " & accountsPropertyListFile & " could not be read or no MoneyMoney accounts with attribute 'bankIdentifier' exists."
 	end if
-
-	-- @todo clean temporary file(s)
 
 	return balancePerBankList
 end SumBankBalancesFromPlist
