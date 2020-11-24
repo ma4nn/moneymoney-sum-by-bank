@@ -1,3 +1,20 @@
+------------------------
+-- CONFIGURATION
+
+-- The name of the resulting Excel file. You can either use an existing file or leave it to missing value to create a new one.
+set exportFileName to missing value
+
+-- The index of the cell row/column to start the table.
+set startRowIndex to 1
+set startColumnIndex to 1
+
+-- Whether to sort the resulting sums in a descending order or not.
+set isSortDescending to true
+
+-- Whether to close Excel after the export.
+set isCloseExcel to false
+------------------------
+
 global tmpDir
 -- Note: we do not use "path to temporary items from user domain" because - despite the call - this is not in the user space!
 set tmpDir to (path to library folder from user domain as text) & "Caches:"
@@ -86,29 +103,46 @@ on SumBankBalancesFromPlist(accountsPropertyListFile)
 end SumBankBalancesFromPlist
 
 -- Open Microsoft Excel application, insert bank sums and format and sort accordingly
-on OpenExcelWithData(bankBalances)
+on OpenExcelWithData(bankBalances, fileName, startRowIndex, startColumnIndex, isSortDescending, isCloseExcel)
 	tell application "Microsoft Excel"
 		activate
-		make new workbook
-		set x to 1
+		if (fileName is missing value) then
+			make new workbook
+		else
+			open fileName
+		end if
+		--
+		set x to startRowIndex
 
 		repeat with balanceData in bankBalances
 			set balance to balance of balanceData
 			set bank to bankIdentifier of balanceData
 
-			set value of cell x of column 1 to balance
-			set value of cell x of column 2 to bank
+			set value of cell x of column startColumnIndex to balance
+			set value of cell x of column (startColumnIndex + 1) to bank
 			set x to (x + 1)
 		end repeat
 
-		set number format of range "$A1:$A100" to "#,##0.00 €"
-		sort range "A1:B10" key1 range "A1" order1 sort descending
+		set number format of column startColumnIndex to "#,##0.00 €"
+
+		if (isSortDescending is true) then
+			set sortingRange to "" & startRowIndex & ":" & x
+			sort range sortingRange key1 cell 1 of column startColumnIndex order1 sort descending
+		end if
+
+		if (fileName is not missing value) then
+			save yes
+		end if
+
+		if (isCloseExcel is true) then
+			close active workbook
+		end if
 	end tell
 end OpenExcelWithData
 
 set accountsPropertyListFile to ExportAccounts()
 set bankBalances to SumBankBalancesFromPlist(accountsPropertyListFile)
 
-OpenExcelWithData(bankBalances)
+OpenExcelWithData(bankBalances, exportFileName, startRowIndex, startColumnIndex, isSortDescending, isCloseExcel)
 
 DeleteFile(accountsPropertyListFile)
