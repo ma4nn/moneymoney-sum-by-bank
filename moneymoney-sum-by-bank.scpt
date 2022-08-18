@@ -83,20 +83,23 @@ on SumBankBalancesFromPlist(accountsPropertyListFile)
 	tell application "System Events"
 		tell property list file accountsPropertyListFile
 			repeat with i from 1 to number of property list items
-				set bankIdentifier to ""
-				set accountName to ""
+				set accountName to value of property list item "name" of property list item i
 
-				try
-					set accountName to value of property list item "name" of property list item i
-					set bankIdentifier to value of property list item "bankIdentifier" of property list item "attributes" of property list item i
+				set isGroup to value of property list item "group" of property list item i
+				if isGroup is false then
+					try
+						set bankIdentifier to value of property list item "bankIdentifier" of property list item "attributes" of property list item i
+					on error errStr number errorNumber
+						log "WARNING: " & errStr & ". MoneyMoney Attribute 'bankIdentifier' not set for account " & accountName
+						set bankIdentifier to "Sonstige"
+					end try
+
 					set balances to value of property list item "balance" of property list item i
 					repeat with balance in balances
 						-- @todo make addition work also for different currencies, at the moment we assume all is the same currency
 						my IncreaseBankBalance(bankIdentifier, get first item of balance, balancePerBankList)
 					end repeat
-				on error errStr number errorNumber
-					log "WARNING: " & errStr & ". Probably MoneyMoney Attribute 'bankIdentifier' not set for account " & accountName & ". Skipping.."
-				end try
+				end if
 			end repeat
 		end tell
 	end tell
