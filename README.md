@@ -16,7 +16,8 @@ At the beginning of the Apple Script file `moneymney-sum-by-bank.scpt` you can t
 |`startRowIndex`/`startColumnIndex`|The index of the cell row/column to start the table.|
 |`isSortDescending`|Whether to sort the resulting sums in a descending order or not.|
 |`isCloseExcel`|Whether to close Excel after the export.|
-|`cellThresholdValue`|Threshold value above that the cell is colored red|
+|`cellThresholdValue`|Threshold value above that the cell is colored|
+|`cellThresholdColor`|Threshold background color value|
 
 If you optionally want to use this AppleScript within the services menu of the _MoneyMoney_ application, the best way is to use the [Mac Automator](https://support.apple.com/de-de/guide/automator/aut73234890a/mac): 
 1. Create a new "Quick Action Workflow" in Automator 
