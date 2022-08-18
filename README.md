@@ -16,8 +16,9 @@ At the beginning of the Apple Script file `moneymney-sum-by-bank.scpt` you can t
 |`startRowIndex`/`startColumnIndex`|The index of the cell row/column to start the table.|
 |`isSortDescending`|Whether to sort the resulting sums in a descending order or not.|
 |`isCloseExcel`|Whether to close Excel after the export.|
+|`cellThresholdValue`|Threshold value above that the cell is colored red|
 
-If you optionally want to use the AppleScript within the services menu of the _MoneyMoney_ application, the best way is to use the [Mac Automator](https://support.apple.com/de-de/guide/automator/aut73234890a/mac): 
+If you optionally want to use this AppleScript within the services menu of the _MoneyMoney_ application, the best way is to use the [Mac Automator](https://support.apple.com/de-de/guide/automator/aut73234890a/mac): 
 1. Create a new "Quick Action Workflow" in Automator 
 1. Choose "No Input" in "MoneyMoney"
 1. Add the action "Execute AppleScript" and paste the contents of the file `moneymoney-sum-by-bank.scpt` into the text box
@@ -32,11 +33,11 @@ After click on the new menu item in _MoneyMoney > Services_, Microsoft Excel wil
 
 As an alternative you can also simply double click on the `moneymney-sum-by-bank.scpt` script to execute it manually.
 
-For more information see also [my blog post](https://knete-rechner.de/geld-wissen/moneymoney-maximum-pro-bank/).
+For more information see also [my blog post](https://dev-investor.de/finanz-apps/money-money/maximum-pro-bank-extension/).
 
 ## Notes
 
-- Tested with Excel for Mac 16.43
+- Tested with Excel for Mac 16.43/16.64
 - The MoneyMoney application has to be unlocked when executing the script otherwise an error will be thrown
 - Basically a better way would be to automatically group by account bic but not all accounts do have a bic (e.g. credit cards).
 

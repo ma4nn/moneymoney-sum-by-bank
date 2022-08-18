@@ -1,6 +1,8 @@
 ------------------------
 -- CONFIGURATION
 
+global exportFileName, startRowIndex, startColumnIndex, isSortDescending, isCloseExcel, cellThresholdValue, cellThresholdColor
+
 -- The name of the resulting Excel file. You can either use an existing file or leave it to missing value to create a new one.
 set exportFileName to missing value
 
@@ -13,6 +15,10 @@ set isSortDescending to true
 
 -- Whether to close Excel after the export.
 set isCloseExcel to false
+
+-- Threshold value above that the cell is colored
+set cellThresholdValue to 100000
+set cellThresholdColor to {255, 244, 233}
 ------------------------
 
 global tmpDir
@@ -103,13 +109,13 @@ on SumBankBalancesFromPlist(accountsPropertyListFile)
 end SumBankBalancesFromPlist
 
 -- Open Microsoft Excel application, insert bank sums and format and sort accordingly
-on OpenExcelWithData(bankBalances, fileName, startRowIndex, startColumnIndex, isSortDescending, isCloseExcel)
+on OpenExcelWithData(bankBalances)
 	tell application "Microsoft Excel"
 		activate
-		if (fileName is missing value) then
+		if (exportFileName is missing value) then
 			make new workbook
 		else
-			open fileName
+			open exportFileName
 		end if
 		--
 		set x to startRowIndex
@@ -120,6 +126,11 @@ on OpenExcelWithData(bankBalances, fileName, startRowIndex, startColumnIndex, is
 
 			set value of cell x of column startColumnIndex to balance
 			set value of cell x of column (startColumnIndex + 1) to bank
+
+			if (balance > cellThresholdValue) then
+				set color of interior object of cell x of column startColumnIndex to cellThresholdColor
+			end if
+
 			set x to (x + 1)
 		end repeat
 
@@ -130,7 +141,7 @@ on OpenExcelWithData(bankBalances, fileName, startRowIndex, startColumnIndex, is
 			sort range sortingRange key1 cell 1 of column startColumnIndex order1 sort descending
 		end if
 
-		if (fileName is not missing value) then
+		if (exportFileName is not missing value) then
 			save yes
 		end if
 
@@ -143,6 +154,6 @@ end OpenExcelWithData
 set accountsPropertyListFile to ExportAccounts()
 set bankBalances to SumBankBalancesFromPlist(accountsPropertyListFile)
 
-OpenExcelWithData(bankBalances, exportFileName, startRowIndex, startColumnIndex, isSortDescending, isCloseExcel)
+OpenExcelWithData(bankBalances)
 
 DeleteFile(accountsPropertyListFile)
