@@ -11,6 +11,7 @@ This script requires Python 3.10.
 pip install -r requirements.txt
 ```
 
+### Create service menu entry (optional)
 On Mac if you (optionally) want to use this Python script within the services menu of the _MoneyMoney_ application, the best way is to use the [Mac Automator](https://support.apple.com/de-de/guide/automator/aut73234890a/mac): 
 1. Create a new "Quick Action Workflow" in Automator 
 2. Choose "No Input" in "MoneyMoney"
@@ -29,6 +30,10 @@ On Mac if you (optionally) want to use this Python script within the services me
 Then you have a new menu item with the chosen name in _MoneyMoney > Services_.
 
 ## Usage
+
+```shell
+python3 moneymoney-sum-by-bank.py
+```
 
 **Note:** The MoneyMoney application has to be unlocked when executing the script otherwise an error will be thrown.
 
