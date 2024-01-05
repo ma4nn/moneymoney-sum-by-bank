@@ -5,6 +5,8 @@ This is useful e.g. to export the total values per bank to a summary Excel docum
 
 ## Installation
 
+This script requires Python 3.10.
+
 ```
 pip install -r requirements.txt
 ```
