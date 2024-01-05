@@ -19,7 +19,7 @@ On Mac if you (optionally) want to use this Python script within the services me
    ```applescript
    on run {input, parameters}
        tell application "Terminal"
-           do script "python3 ~/path/to/script/moneymoney-sum-by-bank.py && read -s -n 1 key && exit 0"
+           do script "python3 ~/path/to/script/moneymoney_sum_by_bank.py && read -s -n 1 key && exit 0"
        end tell
        
        return input
@@ -32,7 +32,7 @@ Then you have a new menu item with the chosen name in _MoneyMoney > Services_.
 ## Usage
 
 ```shell
-python3 moneymoney-sum-by-bank.py
+python3 moneymoney_sum_by_bank.py
 ```
 
 **Note:** The MoneyMoney application has to be unlocked when executing the script otherwise an error will be thrown.
