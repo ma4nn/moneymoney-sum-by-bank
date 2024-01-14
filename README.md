@@ -37,7 +37,8 @@ python3 moneymoney_sum_by_bank.py
 
 **Note:** The MoneyMoney application has to be unlocked when executing the script otherwise an error will be thrown.
 
-This Python script sums all account balances from MoneyMoney by BIC. If a BIC is not available (e.g. in case of an offline or a credit card account),
+This Python script sums all account balances from MoneyMoney by the bank code of the BIC ([first 4 digits](https://www.buchhaltung-einfach-sicher.de/finanzen/bic)).  
+If a BIC is not available (e.g. in case of an offline or a credit card account),
 the script looks for a custom attribute `bankIdentifier` in the account settings and uses this as reference.  
 If neither of this information is available on the account and it has a balance, the value is added to "other".
 

@@ -17,6 +17,9 @@ def sum_by_account(accounts: list[Account]) -> pd.DataFrame:
         if not account['bankCode']:
             account['bankCode'] = account['attributes']['bankIdentifier'] if 'bankIdentifier' in account['attributes'] else 'other'
             logging.debug("Account %s has no bank code, using '%s'", account["name"], account['bankCode'])
+        else:
+            # we only take the first 4 characters of the bic as that is the bank code, @see https://www.buchhaltung-einfach-sicher.de/finanzen/bic
+            account['bankCode'] = account['bankCode'][:4]
 
         for balance in account['balance']:
             balance_per_bank_and_currency.append([account['bankCode'], balance[0], balance[1]])
