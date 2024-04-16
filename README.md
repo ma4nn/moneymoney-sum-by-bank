@@ -7,7 +7,7 @@ This is useful e.g. to export the total values per bank to a summary Excel docum
 
 ## Installation
 
-This script requires Python 3.10.
+This script requires at least Python 3.10.
 
 ```
 pip install -r requirements.txt
@@ -31,7 +31,7 @@ On Mac if you (optionally) want to use this Python script within the services me
 
 Then you have a new menu item with the chosen name in _MoneyMoney > Services_.
 
-## Usage
+## Usage 💡
 
 ```shell
 python3 moneymoney_sum_by_bank.py
