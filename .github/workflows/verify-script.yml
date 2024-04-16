@@ -23,7 +23,7 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         pip install pylint
-        pylint --errors-only $(find src/ -name "*.py" | xargs)
+        pylint --errors-only $(find . -name "*.py" | xargs)
     - name: Running tests
       run: |
         python -m unittest
