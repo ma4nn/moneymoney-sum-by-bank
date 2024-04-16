@@ -22,6 +22,7 @@ jobs:
         pip install -r requirements.txt
     - name: Analysing the code with pylint
       run: |
+        pip install pylint
         pylint --errors-only $(find src/ -name "*.py" | xargs)
     - name: Running tests
       run: |
