@@ -13,7 +13,7 @@ from typing import TypedDict
 class Account(TypedDict):
     name: str
     bankCode: str
-    balance: list[float | str]
+    balance: list[list[float | str]]
     portfolio: bool
     group: bool
     attributes: dict[str, str]

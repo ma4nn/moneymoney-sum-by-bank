@@ -1,6 +1,8 @@
 # MoneyMoney Extension: Sum by Bank
 
-This is a Pyton script for the great [MoneyMoney software](https://moneymoney-app.com/) to generate a list with all balances by bank account.  
+![build status](https://github.com/ma4nn/moneymoney-sum-by-bank/actions/workflows/verify-script.yml/badge.svg)
+
+This is a Python script for the great [MoneyMoney software](https://moneymoney-app.com/) to generate a list with all balances by bank account.  
 This is useful e.g. to export the total values per bank to a summary Excel document or to monitor certain threshold values per bank.
 
 ## Installation
